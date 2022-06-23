@@ -1,0 +1,37 @@
+alias: VOICE ChangeLightRoomState
+description: ''
+trigger:
+  - platform: event
+    event_type: rhasspy_ChangeLightRoomState
+    context:
+      user_id:
+        - ecbad94e9e4c43259a789fa5278755c5
+condition:
+  - condition: state
+    entity_id: binary_sensor.somebody_home
+    state: 'on'
+action:
+  - service: >-
+      light.{% if trigger.event.data.state == 'on' %}turn_on{% else
+      %}turn_off{%endif %}
+    data: {}
+    target:
+      area_id: >-
+        {% if trigger.event.data.room == 'Kitchen' %}
+        aea2ab2e2fed40d986a3712d0d54b797{% else %} {% if trigger.event.data.room
+        == 'Livingroom' %} 40f31822a1e2410081b94bfd9e5c17de{% else %} {% if
+        trigger.event.data.room == 'Bathroom' %}
+        a08df774f4cb49828f8f2663af201470{% else %} {% if trigger.event.data.room
+        == 'Entrance' %} 2b9f8a748b2d4c9d9bfbb4b37debe3db{% else %} {% if
+        trigger.event.data.room == 'Bedroom' %}
+        6dc31aca99e446aeb9e84cf90eb1575f{% else %}null{% endif %}
+  - service: rest_command.rhasspy_speak
+    data:
+      payload: >-
+        Okay, {{ trigger.event.data.room }} Lights {{ trigger.event.data.state
+        }}
+  - service: system_log.write
+    data:
+      level: debug
+      message: '{{trigger.event.data}}'
+mode: single
